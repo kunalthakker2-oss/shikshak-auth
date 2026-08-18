@@ -33,11 +33,11 @@
     </div>
 
     <script>
-        // सीधे इसी रिपॉजिटरी की users.txt फाइल से चेक करेगा (डायनेमिक सिस्टम चालू रहेगा)
-        const USERS_URL = "users.txt"; 
+        // एकदम साफ और सही Gist URL (बिना किसी कमिट हैश के)
+        const GIST_URL = "https://gist.githubusercontent.com/kunalthakker2-oss/d18106106dbe924bc68613ccfe6115d3/raw/users.txt";
         const MAIN_APP_URL = "https://hamareshikshak.educationportal3.mp.gov.in";
 
-        // Expiry check (महीने के अंत तक लॉगिन याद रखेगा)
+        // Expiry Check (महीने के अंत तक लॉगिन याद रखेगा)
         const savedExpiry = localStorage.getItem("app_expiry_time");
         if (savedExpiry && new Date().getTime() < parseInt(savedExpiry)) {
             window.location.href = MAIN_APP_URL;
@@ -48,16 +48,16 @@
             const errorDiv = document.getElementById("errorMsg");
 
             if(!userInput) {
-                errorDiv.innerText = "कृपया Key दर्ज करें!";
+                errorDiv.innerText = "कृपया अपनी Key दर्ज करें!";
                 return;
             }
 
             errorDiv.innerText = "Verifying...";
 
             try {
-                // Cache bypass के लिए रैंडम नंबर जोड़ा है ताकि हमेशा ताज़ा डेटा मिले
-                const response = await fetch(USERS_URL + "?t=" + new Date().getTime());
-                if (!response.ok) throw new Error("File not found");
+                // Cache bypass के लिए रैंडम टाइमस्टैम्प जोड़ा गया है
+                const response = await fetch(GIST_URL + "?t=" + new Date().getTime());
+                if (!response.ok) throw new Error("Network response failed");
                 
                 const text = await response.text();
                 const users = text.split(/\r?\n/).map(u => u.trim()).filter(u => u !== "");
