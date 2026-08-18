@@ -12,7 +12,7 @@
         .modal-card h3 { margin: 0 0 5px 0; color: #000000; font-size: 20px; font-weight: bold; }
         input[type="text"] { width: 100%; padding: 14px; border: 1px solid #dcdcdc; border-radius: 12px; font-size: 16px; box-sizing: border-box; margin-bottom: 20px; background: #fafafa; outline: none; }
         .confirm-btn { width: 100%; background-color: #2c2c2c; color: white; border: none; border-radius: 30px; padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .error-msg { color: red; font-size: 13px; text-align: center; margin-top: 12px; font-weight: bold; }
+        .error-msg { color: red; font-size: 12px; text-align: center; margin-top: 12px; font-weight: bold; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -33,7 +33,6 @@
     </div>
 
     <script>
-        // सीधे इसी रिपॉजिटरी की users.txt फाइल से वेरीफाई करेगा
         const USERS_URL = "users.txt"; 
         const MAIN_APP_URL = "https://hamareshikshak.educationportal3.mp.gov.in";
 
@@ -51,11 +50,12 @@
                 return;
             }
 
+            errorDiv.style.color = "#555";
             errorDiv.innerText = "Verifying...";
 
             try {
                 const response = await fetch(USERS_URL + "?t=" + new Date().getTime());
-                if (!response.ok) throw new Error("File not found");
+                if (!response.ok) throw new Error("File not found (404)");
                 
                 const text = await response.text();
                 const users = text.split(/\r?\n/).map(u => u.trim()).filter(u => u !== "");
@@ -66,10 +66,13 @@
                     localStorage.setItem("app_expiry_time", endOfMonth);
                     window.location.href = MAIN_APP_URL;
                 } else {
-                    errorDiv.innerText = "Invalid Key! कृपया सही की डालें।";
+                    errorDiv.style.color = "red";
+                    // यहाँ आपको तुरंत दिख जाएगा कि फाइल के अंदर असल में क्या टेक्स्ट पढ़ा गया है
+                    errorDiv.innerText = `Invalid! (File Data: "${text.trim()}")`;
                 }
             } catch (error) {
-                errorDiv.innerText = "Network Error! इंटरनेट चेक करें।";
+                errorDiv.style.color = "red";
+                errorDiv.innerText = "Error: users.txt फाइल नहीं मिल रही (404)।";
             }
         }
     </script>
