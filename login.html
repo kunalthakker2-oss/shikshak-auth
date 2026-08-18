@@ -5,87 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>License Verification</title>
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: rgba(0, 0, 0, 0.75);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            box-sizing: border-box;
-        }
-        .container {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .warning-box {
-            background: #ffffff;
-            border: 2px solid #d9534f;
-            border-radius: 12px;
-            padding: 15px;
-            color: #a94442;
-            font-size: 13px;
-            text-align: center;
-            line-height: 1.5;
-        }
-        .modal-card {
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 25px 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-        .modal-card h3 {
-            margin: 0 0 5px 0;
-            color: #000000;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .modal-card p {
-            color: #555555;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #dcdcdc;
-            border-radius: 12px;
-            font-size: 16px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            outline: none;
-            background: #fafafa;
-        }
-        input[type="text"]:focus {
-            border-color: #007bff;
-        }
-        .confirm-btn {
-            width: 100%;
-            background-color: #2c2c2c;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .confirm-btn:active {
-            background-color: #1a1a1a;
-        }
-        .error-msg {
-            color: red;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 12px;
-            font-weight: bold;
-        }
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: rgba(0, 0, 0, 0.75); display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; box-sizing: border-box; }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
+        .warning-box { background: #ffffff; border: 2px solid #d9534f; border-radius: 12px; padding: 15px; color: #a94442; font-size: 13px; text-align: center; line-height: 1.5; }
+        .modal-card { background: #ffffff; border-radius: 24px; padding: 25px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .modal-card h3 { margin: 0 0 5px 0; color: #000000; font-size: 20px; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 14px; border: 1px solid #dcdcdc; border-radius: 12px; font-size: 16px; box-sizing: border-box; margin-bottom: 20px; background: #fafafa; outline: none; }
+        .confirm-btn { width: 100%; background-color: #2c2c2c; color: white; border: none; border-radius: 30px; padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .error-msg { color: red; font-size: 13px; text-align: center; margin-top: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -97,68 +24,46 @@
         </div>
 
         <div class="modal-card">
-            <h3>key</h3>
-            <p>यहां पर पासवर्ड डालकर कंफर्म पर क्लिक 👇</p>
-            <input type="text" id="licenseKey" placeholder="">
+            <h3>Key</h3>
+            <p>पासवर्ड डालकर Confirm करें:</p>
+            <input type="text" id="licenseKey" placeholder="Enter Key">
             <button class="confirm-btn" onclick="verifyKey()">Confirm</button>
             <div id="errorMsg" class="error-msg"></div>
         </div>
     </div>
 
     <script>
-        // Aapka GitHub Gist Raw URL yahan pehle se inserted hai
         const GIST_URL = "https://gist.githubusercontent.com/kunalthakker2-oss/d18106106dbe924bc68613ccfe6115d3/raw/users.txt";
-        
-        // Aapki asli government website ka link
         const MAIN_APP_URL = "https://hamareshikshak.educationportal3.mp.gov.in";
 
-        // Monthly Expiry Check Logic
+        // Expiry check
         const savedExpiry = localStorage.getItem("app_expiry_time");
-        const currentTime = new Date().getTime();
-
-        if (savedExpiry && currentTime < parseInt(savedExpiry)) {
+        if (savedExpiry && new Date().getTime() < parseInt(savedExpiry)) {
             window.location.href = MAIN_APP_URL;
-        } else {
-            localStorage.removeItem("app_expiry_time");
         }
 
         async function verifyKey() {
             const userInput = document.getElementById("licenseKey").value.trim();
             const errorDiv = document.getElementById("errorMsg");
 
-            if(!userInput) {
-                errorDiv.innerText = "कृपया अपनी Key दर्ज करें!";
-                return;
-            }
-
-            errorDiv.style.color = "#555";
             errorDiv.innerText = "Verifying...";
 
             try {
                 const response = await fetch(GIST_URL + "?t=" + new Date().getTime());
                 const text = await response.text();
-                const users = text.split(/\r?\n/).map(u => u.trim());
+                // Har line ko alag karke saaf kar rahe hain
+                const users = text.split(/\r?\n/).map(u => u.trim()).filter(u => u !== "");
 
                 if(users.includes(userInput)) {
-                    errorDiv.style.color = "green";
-                    errorDiv.innerText = "Success! Opening app...";
-                    
-                    // Current month ke aakhiri din ka timestamp set karna (Monthly Expiry)
                     const now = new Date();
                     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime();
-                    
                     localStorage.setItem("app_expiry_time", endOfMonth);
-                    
-                    setTimeout(() => {
-                        window.location.href = MAIN_APP_URL;
-                    }, 800);
+                    window.location.href = MAIN_APP_URL;
                 } else {
-                    errorDiv.style.color = "red";
-                    errorDiv.innerText = "Invalid Key! कृपया सही पासवर्ड डालें।";
+                    errorDiv.innerText = "Invalid Key! कृपया सही की डालें।";
                 }
             } catch (error) {
-                errorDiv.style.color = "red";
-                errorDiv.innerText = "Network Error! इंटरनेट कनेक्शन चेक करें।";
+                errorDiv.innerText = "Network Error! इंटरनेट चेक करें।";
             }
         }
     </script>
