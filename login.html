@@ -33,11 +33,10 @@
     </div>
 
     <script>
-        // एकदम साफ और सही Gist URL (बिना किसी कमिट हैश के)
-        const GIST_URL = "https://gist.githubusercontent.com/kunalthakker2-oss/d18106106dbe924bc68613ccfe6115d3/raw/users.txt";
+        // सीधे इसी रिपॉजिटरी की users.txt फाइल से वेरीफाई करेगा
+        const USERS_URL = "users.txt"; 
         const MAIN_APP_URL = "https://hamareshikshak.educationportal3.mp.gov.in";
 
-        // Expiry Check (महीने के अंत तक लॉगिन याद रखेगा)
         const savedExpiry = localStorage.getItem("app_expiry_time");
         if (savedExpiry && new Date().getTime() < parseInt(savedExpiry)) {
             window.location.href = MAIN_APP_URL;
@@ -55,9 +54,8 @@
             errorDiv.innerText = "Verifying...";
 
             try {
-                // Cache bypass के लिए रैंडम टाइमस्टैम्प जोड़ा गया है
-                const response = await fetch(GIST_URL + "?t=" + new Date().getTime());
-                if (!response.ok) throw new Error("Network response failed");
+                const response = await fetch(USERS_URL + "?t=" + new Date().getTime());
+                if (!response.ok) throw new Error("File not found");
                 
                 const text = await response.text();
                 const users = text.split(/\r?\n/).map(u => u.trim()).filter(u => u !== "");
