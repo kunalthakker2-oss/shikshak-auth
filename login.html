@@ -12,7 +12,7 @@
         .modal-card h3 { margin: 0 0 5px 0; color: #000000; font-size: 20px; font-weight: bold; }
         input[type="text"] { width: 100%; padding: 14px; border: 1px solid #dcdcdc; border-radius: 12px; font-size: 16px; box-sizing: border-box; margin-bottom: 20px; background: #fafafa; outline: none; }
         .confirm-btn { width: 100%; background-color: #2c2c2c; color: white; border: none; border-radius: 30px; padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .error-msg { color: red; font-size: 13px; text-align: center; margin-top: 12px; font-weight: bold; }
+        .error-msg { color: red; font-size: 12px; text-align: center; margin-top: 12px; font-weight: bold; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -36,7 +36,6 @@
         const GIST_URL = "https://gist.githubusercontent.com/kunalthakker2-oss/d18106106dbe924bc68613ccfe6115d3/raw/users.txt";
         const MAIN_APP_URL = "https://hamareshikshak.educationportal3.mp.gov.in";
 
-        // Expiry check
         const savedExpiry = localStorage.getItem("app_expiry_time");
         if (savedExpiry && new Date().getTime() < parseInt(savedExpiry)) {
             window.location.href = MAIN_APP_URL;
@@ -46,12 +45,13 @@
             const userInput = document.getElementById("licenseKey").value.trim();
             const errorDiv = document.getElementById("errorMsg");
 
-            errorDiv.innerText = "Verifying...";
+            errorDiv.style.color = "#555";
+            errorDiv.innerText = "Checking...";
 
             try {
                 const response = await fetch(GIST_URL + "?t=" + new Date().getTime());
                 const text = await response.text();
-                // Har line ko alag karke saaf kar rahe hain
+                
                 const users = text.split(/\r?\n/).map(u => u.trim()).filter(u => u !== "");
 
                 if(users.includes(userInput)) {
@@ -60,9 +60,12 @@
                     localStorage.setItem("app_expiry_time", endOfMonth);
                     window.location.href = MAIN_APP_URL;
                 } else {
-                    errorDiv.innerText = "Invalid Key! कृपया सही की डालें।";
+                    errorDiv.style.color = "red";
+                    // यह लाइन आपको साफ दिखाएगी कि ऐप ने Gist से क्या पढ़ा है
+                    errorDiv.innerText = `Invalid! (Gist से यह पढ़ा: "${text.trim()}")`;
                 }
             } catch (error) {
+                errorDiv.style.color = "red";
                 errorDiv.innerText = "Network Error! इंटरनेट चेक करें।";
             }
         }
